@@ -49,7 +49,7 @@ All nodes have the following methods:
     The expression is compiled against a namespace, typically `math`, needed to
     bind internally used functions. `compile` returns an object with a function
     `eval([scope])` to evaluate. Example:
-    
+
     ```js
     var node = math.parse('2 + x'); // returns the root Node of an expression tree
     var code = node.compile(math);  // returns {eval: function (scope) {...}}
@@ -152,7 +152,7 @@ All nodes have the following methods:
         return node;
       }
     });
-    transformed.toString(); // returns '(3 ^ 2) + (5 * 3)'
+    transformed.toString(); // returns '3 ^ 2 + 5 * 3'
     ```
 
 -   `traverse(callback)`
