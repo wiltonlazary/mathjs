@@ -1,4 +1,4 @@
- 'use strict';
+'use strict';
 
 var assert = require('assert');
 var math = require('../../../index'); 
@@ -14,8 +14,12 @@ var math = require('../../../index');
    * @param  {any} arg        Input value
    * @return {string}         String value
    */
-function stri(arg) { return arg.toString().replace(/ /g,'') }
-
+function stri(arg) { 
+  if (arg===null)  
+    return null
+  else
+    return arg.toString().replace(/ /g,'') 
+}
 /**
    * Transform Obj properties in an array of string-converted values of 
    * its sorted properties 
@@ -28,10 +32,10 @@ function stri(arg) { return arg.toString().replace(/ /g,'') }
    * @return {array}          Arrey of sorted properties converted to strings
    */
 function objToStrings(obj) {
-var vet = Object.keys(obj).sort()
-var ret = [];
-for (var i=0;i<vet.length;i++) { ret[i] = stri(obj[vet[i]]);}
-return ret;
+  var vet = Object.keys(obj).sort()
+  var strObj = {};
+  for (var i=0;i<vet.length;i++) { strObj[vet[i]] = stri(obj[vet[i]]);}
+  return strObj;
 }
 
 
@@ -117,7 +121,8 @@ describe('rationalize', function() {
 
   it('processing tougher expressions', function() {
     assert.equal(stri(math.rationalize('2x/(x+2) - x/(x+1)')),'x^2/(x^2+3*x+2)');
-    assert.equal(stri(math.rationalize('2x/( (2x-1) / (3x+2) ) - 5x/ ( (3x+4) / (2x^2-5) ) + 3')),'(-20*x^4+28*x^3+104*x^2+6*x-12)/(6*x^2+5*x-4)');
+    assert.equal(stri(math.rationalize('2x/( (2x-1) / (3x+2) ) - 5x/ ( (3x+4) / (2x^2-5) ) + 3')),
+                 '(-20*x^4+28*x^3+104*x^2+6*x-12)/(6*x^2+5*x-4)');
     assert.equal(stri(math.rationalize('x/(1-x)/(x-2)/(x-3)/(x-4) + 2x/ ( (1-2x)/(2-3x) )/ ((3-4x)/(4-5x) )')),
           '(-30*x^7+344*x^6-1506*x^5+3200*x^4-3472*x^3+1846*x^2-381*x)/(-8*x^6+90*x^5-383*x^4+780*x^3-797*x^2+390*x-72)');
     var no = math.parse('2x/( (2x-1) / (3x+2) ) - 5x/ ( (3x+4) / (2x^2-5) ) + 3'); 
@@ -130,13 +135,42 @@ describe('rationalize', function() {
   });
 
   it('testing complete form', function() {
-    assert.deepEqual(objToStrings(math.rationalize('x+x+x+y',{},true)),['','3*x+y','x,y']); 
-    assert.deepEqual(objToStrings(math.rationalize('-2+5x^2',{},true)), ['-2,0,5','false','5*x^2-2','5*x^2-2','x']);
-    assert.deepEqual(objToStrings(math.rationalize('x^2 + 2*x*y + 3',{y:5},true)),['3,10,1','false','x^2+10*x+3','x^2+10*x+3','x']);
-    assert.deepEqual(objToStrings(math.rationalize('(x^2 + 2*x*y + 3)/(2y-3x)',{y:5},true)),['3,10,1','-3*x+10','(x^2+10*x+3)/(-3*x+10)','x^2+10*x+3','x']);
-    assert.deepEqual(objToStrings(math.rationalize('sin(y)+x',{y:math.PI/6},true)),
-       ['0.49999999999999994,1','false','x+0.49999999999999994','x+0.49999999999999994','x'])
+    assert.deepEqual(objToStrings(math.rationalize('x+x+x+y',{},true)),{
+      coefficients:'', 
+      denominator: null,
+      expression:'3*x+y',
+      numerator: null,
+      variables:'x,y'
+    }); 
+    assert.deepEqual(objToStrings(math.rationalize('-2+5x^2',{},true)), {
+      coefficients:'-2,0,5', 
+      denominator: null,
+      expression:'5*x^2-2',
+      numerator: '5*x^2-2',
+      variables:'x'
+    }); 
+    assert.deepEqual(objToStrings(math.rationalize('x^2 + 2*x*y + 3',{y:5},true)),{
+      coefficients:'3,10,1', 
+      denominator: null,
+      expression:'x^2+10*x+3',
+      numerator: 'x^2+10*x+3',
+      variables:'x'
+    });
+    assert.deepEqual(objToStrings(math.rationalize('(x^2 + 2*x*y + 3)/(2y-3x)',{y:5},true)),{
+      coefficients:'3,10,1', 
+      denominator: '-3*x+10',
+      expression:'(x^2+10*x+3)/(-3*x+10)',
+      numerator: 'x^2+10*x+3',
+      variables:'x'
+    });
+    assert.deepEqual(objToStrings(math.rationalize('sin(y)+x',{y:math.PI/6},true)),{
+      coefficients:'0.49999999999999994,1', 
+      denominator: null,
+      expression:'x+0.49999999999999994',
+      numerator: 'x+0.49999999999999994',
+      variables:'x'
+    })
   });
 
 
-})  // Describe rationalize
+})  // Describe rationalize 
